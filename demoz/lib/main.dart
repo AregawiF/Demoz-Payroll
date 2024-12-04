@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'features/auth/presentation/screens/onboarding_screen.dart';
 import 'features/auth/presentation/screens/signup_screen.dart';
+import 'features/auth/presentation/screens/login_screen.dart';
+import 'features/home/presentation/screens/home_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,8 +22,9 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => const OnboardingScreen(),
-        '/login': (context) => const Scaffold(body: Center(child: Text('Login Screen - Coming Soon'))),
         '/signup': (context) => const SignupScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const HomeScreen(),
       },
     );
   }

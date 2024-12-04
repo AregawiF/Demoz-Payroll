@@ -1,46 +1,38 @@
 import 'package:flutter/material.dart';
-import '../../../company/presentation/screens/company_registration_screen.dart';
 
-class SignupScreen extends StatefulWidget {
-  final String? initialEmail;
-  final String? initialPassword;
-
-  const SignupScreen({
-    super.key, 
-    this.initialEmail, 
-    this.initialPassword,
-  });
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _emailController;
-  late final TextEditingController _passwordController;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isFormValid = false;
-
-  void _validateForm() {
-    setState(() {
-      _isFormValid = _emailController.text.isNotEmpty &&
-          _emailController.text.contains('@') &&
-          _passwordController.text.length >= 6;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController(text: widget.initialEmail);
-    _passwordController = TextEditingController(text: widget.initialPassword);
     _emailController.addListener(_validateForm);
     _passwordController.addListener(_validateForm);
-    // Validate initially if we have values
-    if (widget.initialEmail != null || widget.initialPassword != null) {
-      _validateForm();
-    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _validateForm() {
+    setState(() {
+      _isFormValid = _emailController.text.contains('@') &&
+          _passwordController.text.length >= 6;
+    });
   }
 
   @override
@@ -72,10 +64,13 @@ class _SignupScreenState extends State<SignupScreen> {
                       const Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(text: 'Welcome '),
+                            TextSpan(text: 'Welcome Back '),
                             TextSpan(text: '👋'),
                             TextSpan(text: '\nto '),
-                            TextSpan(text: 'Demoz Payroll', style: TextStyle(color: Color(0xFF579AFC))),
+                            TextSpan(
+                              text: 'Demoz Payroll',
+                              style: TextStyle(color: Color(0xFF579AFC)),
+                            ),
                           ],
                         ),
                         style: TextStyle(
@@ -87,7 +82,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Hello there, Sign up to continue',
+                        'Hello there, Login to continue',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -112,7 +107,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(color: Color(0xFF579AFC)),
                           ),
-                          floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
+                          floatingLabelStyle:
+                              const TextStyle(color: Color(0xFF579AFC)),
                           prefixIcon: const Icon(Icons.email_outlined),
                         ),
                         keyboardType: TextInputType.emailAddress,
@@ -144,11 +140,14 @@ class _SignupScreenState extends State<SignupScreen> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(color: Color(0xFF579AFC)),
                           ),
-                          floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
+                          floatingLabelStyle:
+                              const TextStyle(color: Color(0xFF579AFC)),
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                             ),
                             onPressed: () {
                               setState(() {
@@ -168,20 +167,27 @@ class _SignupScreenState extends State<SignupScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 32),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            // Handle forgot password
+                          },
+                          child: const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: Color(0xFF579AFC),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _isFormValid
                             ? () {
                                 if (_formKey.currentState!.validate()) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => CompanyRegistrationScreen(
-                                        email: _emailController.text,
-                                        password: _passwordController.text,
-                                      ),
-                                    ),
-                                  );
+                                  Navigator.pushReplacementNamed(context, '/home');
                                 }
                               }
                             : null,
@@ -195,7 +201,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           disabledBackgroundColor: Colors.grey.shade300,
                         ),
                         child: const Text(
-                          'Sign Up',
+                          'Login',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -250,7 +256,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'Did you already have an account? ',
+                    'Don\'t have an account? ',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 14,
@@ -258,10 +264,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushReplacementNamed(context, '/login');
+                      Navigator.pushReplacementNamed(context, '/signup');
                     },
                     child: const Text(
-                      'Login',
+                      'Sign Up',
                       style: TextStyle(
                         color: Color(0xFF579AFC),
                         fontSize: 14,
@@ -276,12 +282,5 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }

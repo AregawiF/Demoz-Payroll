@@ -140,52 +140,57 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                SizedBox(
-                                  width: 120,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacementNamed(context, '/login');
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFEEEFF0),
-                                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                                Expanded(
+                                  child: SizedBox(
+                                    width: 120,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pushReplacementNamed(context, '/login');
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFEEEFF0),
+                                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        elevation: 0,
+                                        foregroundColor: const Color(0xFF579AFC),
                                       ),
-                                      elevation: 0,
-                                      foregroundColor: const Color(0xFF579AFC),
-                                    ),
-                                    child: const Text(
-                                      'Login',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
+                                      child: const Text(
+                                        'Login',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                SizedBox(
-                                  width: 120,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacementNamed(context, '/signup');
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFEEEFF0),
-                                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: SizedBox(
+                                    width: 120,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pushReplacementNamed(context, '/signup');
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFEEEFF0),
+                                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        elevation: 0,
+                                        foregroundColor: const Color(0xFF579AFC),
                                       ),
-                                      elevation: 0,
-                                      foregroundColor: const Color(0xFF579AFC),
-                                    ),
-                                    child: const Text(
-                                      'Sign Up',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
+                                      child: const Text(
+                                        'Sign Up',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                        ),
                                       ),
                                     ),
                                   ),
