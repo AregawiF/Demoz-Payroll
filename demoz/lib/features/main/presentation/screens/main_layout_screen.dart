@@ -11,6 +11,12 @@ class MainLayoutScreen extends StatefulWidget {
 }
 
 class _MainLayoutScreenState extends State<MainLayoutScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Trigger the event here
+    context.read<EmployeeBloc>().add(GetEmployeeStatsEvent()); 
+  }
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/entities/employee.dart';
+import '../bloc/employee_bloc.dart';
+import '../bloc/employee_event.dart';
 
 class AddEmployeeScreen extends StatefulWidget {
   const AddEmployeeScreen({super.key});
@@ -9,9 +13,6 @@ class AddEmployeeScreen extends StatefulWidget {
 
 class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool isPerMonth = true;
-  bool isFormValid = false;
-
   final _employeeNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -19,12 +20,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   final _grossSalaryController = TextEditingController();
   final _taxableEarningsController = TextEditingController();
   final _startDateController = TextEditingController();
-
-  void _validateForm() {
-    setState(() {
-      isFormValid = _formKey.currentState?.validate() ?? false;
-    });
-  }
+  bool isPerMonth = true;
+  bool isFormValid = false;
+  DateTime? _selectedDate;
 
   @override
   void dispose() {
@@ -36,6 +34,48 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _taxableEarningsController.dispose();
     _startDateController.dispose();
     super.dispose();
+  }
+
+  void _validateForm() {
+    setState(() {
+      isFormValid = _formKey.currentState?.validate() ?? false;
+    });
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _startDateController.text = picked.toIso8601String().split('T')[0];
+      });
+    }
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final employee = Employee(
+        id: DateTime.now().toString(),
+        name: _employeeNameController.text,
+        email: _emailController.text,
+        salary: double.parse(_grossSalaryController.text),
+        incomeTax: double.parse(_taxableEarningsController.text) * 0.15, // 15% income tax
+        pensionTax: double.parse(_grossSalaryController.text) * 0.07, // 7% pension
+        gender: 'Male', // TODO: Add gender selection
+        joiningDate: _selectedDate ?? DateTime.now(),
+        isActive: true,
+        grossPay: double.parse(_grossSalaryController.text),
+        taxableEarnings: double.parse(_taxableEarningsController.text),
+      );
+
+      context.read<EmployeeBloc>().add(AddEmployeeEvent(employee));
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -82,10 +122,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               const SizedBox(height: 24),
               TextFormField(
                 controller: _employeeNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Employee name',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Employee name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter employee name';
@@ -96,16 +133,13 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email address',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Email address'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter email address';
                   }
                   if (!value.contains('@')) {
-                    return 'Please enter a valid email address';
+                    return 'Please enter valid email address';
                   }
                   return null;
                 },
@@ -113,10 +147,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone number',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Phone number'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter phone number';
@@ -127,10 +158,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _tinNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Tin number',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Tin number'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter TIN number';
@@ -141,14 +169,14 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _grossSalaryController,
-                decoration: const InputDecoration(
-                  labelText: 'Gross salary',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Gross salary'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter gross salary';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter valid salary';
                   }
                   return null;
                 },
@@ -156,14 +184,14 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _taxableEarningsController,
-                decoration: const InputDecoration(
-                  labelText: 'Taxable earnings',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Taxable earnings'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter taxable earnings';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter valid taxable earnings';
                   }
                   return null;
                 },
@@ -171,13 +199,17 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _startDateController,
-                decoration: const InputDecoration(
-                  labelText: 'Starting date of salary',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'Start Date',
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.calendar_today),
+                    onPressed: () => _selectDate(context),
+                  ),
                 ),
+                readOnly: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter starting date';
+                    return 'Please select a start date';
                   }
                   return null;
                 },
@@ -219,18 +251,13 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
-                  onPressed: isFormValid
-                      ? () {
-                          if (_formKey.currentState!.validate()) {
-                            // Handle form submission
-                            Navigator.pop(context);
-                          }
-                        }
-                      : null,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF3085FE),
+                child: ElevatedButton(
+                  onPressed: isFormValid ? _submitForm : null,
+                  style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     'Add Employee',

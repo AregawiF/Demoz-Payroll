@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:demoz/features/payroll/presentation/screens/payroll_screen.dart';
 import 'package:demoz/features/company/presentation/screens/company_profile_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../employee/presentation/bloc/employee_bloc.dart';
+import '../../../employee/presentation/bloc/employee_state.dart';
+import '../../../employee/presentation/bloc/employee_event.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    context.read<EmployeeBloc>().add(GetEmployeeStatsEvent());
   }
 
   @override
@@ -85,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Aug 1, 2024 - Aug 30, 2024', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                const Text('Aug 1, 2024 - Aug 30, 2024', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
@@ -155,11 +160,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildEmployeeCompositionCard() {
-    // Sample data - replace with real data
-    const malePercentage = 60.0;
-    const femalePercentage = 40.0;
-    const totalEmployees = 125;
+  Widget _buildEmployeeCompositionCard( int maleCount, int femaleCount, int totalEmployees ) {
+    var malePercentage = (maleCount / totalEmployees * 100).toStringAsFixed(2);
+    var femalePercentage = (femaleCount / totalEmployees * 100).toStringAsFixed(2);
+    // const malePercentage = 60.0;
+    // const femalePercentage = 40.0;
+    // const totalEmployees = 125;
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -187,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       height: 20,
                       color: const Color(0xFF16C098),
                     ),
-                    const Text('60%'),
+                    Text('$malePercentage %'),
                   ],
                 ),
               ),
@@ -199,13 +205,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     PieChartData(
                       sections: [
                         PieChartSectionData(
-                          value: 60,
+                          value: maleCount.toDouble(),
                           color: const Color(0xFF16C098),
                           radius: 20,
                           showTitle: false,
                         ),
                         PieChartSectionData(
-                          value: 40,
+                          value: femaleCount.toDouble(),
                           color: const Color(0xFF5932EA),
                           radius: 25,
                           showTitle: false,
@@ -227,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       height: 20,
                       color: const Color(0xFF5932EA),
                     ),
-                    const Text('40%'),
+                    Text('$femalePercentage %'),
                   ],
                 ),
               ),
@@ -248,8 +254,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildTaxSummaryCard() {
-    // Sample data - replace with real data
+  Widget _buildTaxSummaryCard(double totalTax) {
+    // Sample data 
     const amount = "125,000";
     const percentage = 12.5;
     const isIncrease = true;
@@ -268,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
           const SizedBox(height: 12),
           Text(
-            '$amount ETB',
+            '${totalTax.toStringAsFixed(2)} ETB',
             style: const TextStyle(
               fontSize: 18,
             ),
@@ -306,7 +312,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget _buildHomeContent(BuildContext context, Map<String, dynamic> stats) {
+    final totalEmployees = stats['totalEmployees'] ?? 0;
+    final incomeTaxPaid = stats['totalIncomeTax'] ?? 0.0;
+    final pensionTaxPaid = stats['totalPensionTax'] ?? 0.0;
+    final employeePerformance = stats['employeePerformance'] ?? 'N/A';
+    final maleCount = stats['maleCount'] ?? 0;
+    final femaleCount = stats['femaleCount'] ?? 0;
+    final totalTax = incomeTaxPaid + pensionTaxPaid;
+
     return Scaffold(
       // backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -337,7 +351,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   Expanded(
                     child: _buildStatCard(
                       'Number of Employees',
-                      '20',
+                      totalEmployees.toString(),
+                      // '20',
                       const Color(0xFF3085FE),
                       0,
                     ),
@@ -346,7 +361,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   Expanded(
                     child: _buildStatCard(
                       'Income Tax paid',
-                      '2000',
+                      // '2000',
+                      incomeTaxPaid.toStringAsFixed(2),
                       const Color(0xFFA3D139),
                       1,
                     ),
@@ -455,7 +471,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       height: 250,
                       child: Card(
                         color: Colors.white,
-                        child: _buildEmployeeCompositionCard(),
+                        child: _buildEmployeeCompositionCard(maleCount, femaleCount, totalEmployees),
                       ),
                     ),
                   ),
@@ -466,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       height: 250,
                       child: Card(
                         color: Colors.white,
-                        child: _buildTaxSummaryCard(),
+                        child: _buildTaxSummaryCard(totalTax),
                       ),
                     ),
                   ),
@@ -479,4 +495,25 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     );
   }
+@override
+  Widget build(BuildContext context) {
+    return BlocBuilder<EmployeeBloc, EmployeeState>(
+      builder: (context, state) {
+        if (state is EmployeeLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is EmployeeError) {
+          return Center(child: Text(state.message));
+        }
+
+        if (state is EmployeeStatsLoaded) {
+          return _buildHomeContent(context, state.stats);
+        }
+
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
 }
+

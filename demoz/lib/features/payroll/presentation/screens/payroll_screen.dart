@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:demoz/features/employee/presentation/screens/add_employee_screen.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../employee/presentation/bloc/employee_bloc.dart';
+import '../../../employee/presentation/bloc/employee_event.dart';
+import '../../../employee/presentation/bloc/employee_state.dart';
+import '../../../employee/domain/entities/employee.dart'; 
 
 class PayrollScreen extends StatefulWidget {
   const PayrollScreen({super.key});
@@ -13,6 +18,13 @@ class _PayrollScreenState extends State<PayrollScreen> {
   final ScrollController _horizontalScrollController = ScrollController();
   int _selectedIndex = 1;  // Set initial index to 1 for middle button
   String? _selectedFileName;
+
+   @override
+  void initState() {
+    super.initState();
+    // Fetch employees when the screen initializes
+    context.read<EmployeeBloc>().add(GetEmployeesEvent());
+  }
 
   Future<void> _pickCSVFile() async {
     try {
@@ -40,6 +52,39 @@ class _PayrollScreenState extends State<PayrollScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocConsumer<EmployeeBloc, EmployeeState>(
+      listener: (context, state) {
+        if (state is EmployeeOperationSuccess) {
+          // Refresh the employee list after a successful operation
+          context.read<EmployeeBloc>().add(GetEmployeesEvent());
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        } else if (state is EmployeeError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state is EmployeeLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is EmployeesLoaded) {
+          return _buildPayrollContent(context, state.employees);
+        }
+
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+
+  @override
+  Widget _buildPayrollContent(BuildContext context, List<Employee> employees) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -124,6 +169,10 @@ class _PayrollScreenState extends State<PayrollScreen> {
                   },
                   icon: const Icon(Icons.picture_as_pdf),
                   label: const Text('Download PDF'),
+                  style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  ),
                 ),
               ]
             ),
@@ -142,12 +191,22 @@ class _PayrollScreenState extends State<PayrollScreen> {
                   DataColumn(label: Text('Gross\nPay')),
                   DataColumn(label: Text('Actions')),
                 ],
-                rows: [
-                  _buildDataRow('Abraham Welde', '15,000', '2000', '5000', '5000', '20,000'),
-                  _buildDataRow('Birant Alemu', '25,000', '3000', '7000', '7000', '30,000'),
-                  _buildDataRow('Birate Girum', '15,000', '2000', '5000', '5000', '20,000'),
-                  _buildDataRow('Alemu Molla', '15,000', '2000', '5000', '5000', '20,000'),
-                ],
+                // rows: [
+                //   _buildDataRow('Abraham Welde', '15,000', '2000', '5000', '5000', '20,000'),
+                //   _buildDataRow('Birant Alemu', '25,000', '3000', '7000', '7000', '30,000'),
+                //   _buildDataRow('Birate Girum', '15,000', '2000', '5000', '5000', '20,000'),
+                //   _buildDataRow('Alemu Molla', '15,000', '2000', '5000', '5000', '20,000'),
+                // ],
+                rows: employees.map((employee) {
+                  return _buildDataRow(
+                    employee.name,
+                    '${employee.salary}', 
+                    '${employee.salary}',
+                    '${employee.incomeTax}',
+                    '${employee.pensionTax}',
+                    '${employee.salary}',
+                  );
+                }).toList(),
               ),
             ),
             const SizedBox(height: 24),
