@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../company/presentation/screens/company_registration_screen.dart';
+import '../../../../core/utils/form_validators.dart';
 
 class SignupScreen extends StatefulWidget {
   final String? initialEmail;
@@ -116,15 +117,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           prefixIcon: const Icon(Icons.email_outlined),
                         ),
                         keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
+                        validator: FormValidators.emailValidator,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(

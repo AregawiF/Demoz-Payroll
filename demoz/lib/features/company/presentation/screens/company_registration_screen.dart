@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../features/auth/presentation/screens/signup_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/utils/form_validators.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/screens/signup_screen.dart';
 
 class CompanyRegistrationScreen extends StatefulWidget {
   final String email;
@@ -65,6 +68,24 @@ class _CompanyRegistrationScreenState extends State<CompanyRegistrationScreen> {
     });
   }
 
+  void _handleRegister() {
+    if (_formKey.currentState!.validate()) {
+      context.read<AuthBloc>().add(
+            RegisterRequested(
+              email: widget.email,
+              password: widget.password,
+              companyName: _companyNameController.text,
+              companyAddress: _addressController.text,
+              phoneNumber: _phoneController.text,
+              tinNumber: _tinNumberController.text,
+              numberOfEmployees: int.parse(_employeeCountController.text),
+              companyBank: _bankNameController.text,
+              bankAccountNumber: _accountNumberController.text,
+            ),
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,181 +112,158 @@ class _CompanyRegistrationScreenState extends State<CompanyRegistrationScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: 'Register your company\n'),
-                      TextSpan(text: 'to '),
+        child: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            } else if (state is Authenticated) {
+              Navigator.pushReplacementNamed(context, '/home');
+            }
+          },
+          builder: (context, state) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text.rich(
                       TextSpan(
-                        text: 'Demoz Payroll',
-                        style: TextStyle(color: Color(0xFF579AFC)),
+                        children: [
+                          TextSpan(text: 'Register your company\n'),
+                          TextSpan(text: 'to '),
+                          TextSpan(
+                            text: 'Demoz Payroll',
+                            style: TextStyle(color: Color(0xFF579AFC)),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Register your company to continue',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-                const SizedBox(height: 32),
-                TextFormField(
-                  controller: _companyNameController,
-                  decoration: InputDecoration(
-                    labelText: 'Company Name',
-                    hintText: 'Enter company name',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
+                      ),
+                      textAlign: TextAlign.left,
                     ),
-                    floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
-                  ),
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Company name is required' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _addressController,
-                  decoration: InputDecoration(
-                    labelText: 'Company Address',
-                    hintText: 'Enter company address',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Register your company to continue',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                      textAlign: TextAlign.left,
                     ),
-                    floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
-                  ),
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Address is required' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: InputDecoration(
-                    labelText: 'Phone Number',
-                    hintText: 'Enter phone number',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 32),
+                    TextFormField(
+                      controller: _companyNameController,
+                      decoration: _inputDecoration('Company Name', Icons.business),
+                      validator: FormValidators.companyNameValidator,
                     ),
-                    floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
-                  ),
-                  keyboardType: TextInputType.phone,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Phone number is required' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _tinNumberController,
-                  decoration: InputDecoration(
-                    labelText: 'TIN Number',
-                    hintText: 'Enter TIN number',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _addressController,
+                      decoration: _inputDecoration('Company Address', Icons.location_on),
+                      validator: FormValidators.addressValidator,
                     ),
-                    floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'TIN number is required' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _employeeCountController,
-                  decoration: InputDecoration(
-                    labelText: 'Number of Employees',
-                    hintText: 'Enter number of employees',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _phoneController,
+                      decoration: _inputDecoration('Phone Number', Icons.phone),
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: FormValidators.phoneNumberValidator,
                     ),
-                    floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) => value?.isEmpty ?? true
-                      ? 'Number of employees is required'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _bankNameController,
-                  decoration: InputDecoration(
-                    labelText: 'Company Bank',
-                    hintText: 'Enter bank name',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _tinNumberController,
+                      decoration: _inputDecoration('TIN Number', Icons.numbers),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: FormValidators.tinNumberValidator,
                     ),
-                    floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
-                  ),
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Bank name is required' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _accountNumberController,
-                  decoration: InputDecoration(
-                    labelText: 'Bank Account Number',
-                    hintText: 'Enter bank account number',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _employeeCountController,
+                      decoration: _inputDecoration('Number of Employees', Icons.people),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: FormValidators.numberOfEmployeesValidator,
                     ),
-                    floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) => value?.isEmpty ?? true
-                      ? 'Bank account number is required'
-                      : null,
-                ),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: _isFormValid
-                      ? () {
-                          if (_formKey.currentState!.validate()) {
-                            // Navigate to home screen after successful registration
-                            Navigator.pushReplacementNamed(context, '/home');
-                          }
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF579AFC),
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _bankNameController,
+                      decoration: _inputDecoration('Company Bank', Icons.account_balance),
+                      validator: FormValidators.bankNameValidator,
                     ),
-                    elevation: 0,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                  ),
-                  child: const Text(
-                    'Submit for Approval',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _accountNumberController,
+                      decoration: _inputDecoration('Bank Account Number', Icons.account_balance_wallet),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: FormValidators.bankAccountValidator,
                     ),
-                  ),
+                    const SizedBox(height: 32),
+                    ElevatedButton(
+                      onPressed: state is! AuthLoading && _isFormValid
+                          ? _handleRegister
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF579AFC),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: state is AuthLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : const Text(
+                              'Register',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.grey),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF579AFC)),
+      ),
+      floatingLabelStyle: const TextStyle(color: Color(0xFF579AFC)),
     );
   }
 }

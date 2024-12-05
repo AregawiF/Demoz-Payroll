@@ -13,6 +13,16 @@ import '../../features/employee/domain/usecases/import_employees.dart';
 import '../../features/employee/domain/usecases/update_employee.dart';
 import '../../features/employee/presentation/bloc/employee_bloc.dart';
 
+import '../../features/auth/data/datasources/auth_local_datasource.dart';
+import '../../features/auth/data/models/user_model.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/usecases/login_usecase.dart';
+import '../../features/auth/domain/usecases/register_usecase.dart';
+import '../../features/auth/domain/usecases/logout_usecase.dart';
+import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -23,9 +33,14 @@ Future<void> init() async {
   if (!Hive.isAdapterRegistered(0)) {
     Hive.registerAdapter(EmployeeModelAdapter());
   }
+  if (!Hive.isAdapterRegistered(1)) {
+    Hive.registerAdapter(UserModelAdapter());
+  }
   
   // Open Hive Boxes
   final employeeBox = await Hive.openBox<EmployeeModel>('employees');
+  final userBox = await Hive.openBox<UserModel>('users');
+  final sessionBox = await Hive.openBox<String>('session');
 
   // BLoC
   sl.registerFactory(
@@ -39,7 +54,16 @@ Future<void> init() async {
     ),
   );
 
-  // Use cases
+  sl.registerFactory(
+    () => AuthBloc(
+      loginUseCase: sl(),
+      registerUseCase: sl(),
+      logoutUseCase: sl(),
+      getCurrentUserUseCase: sl(),
+    ),
+  );
+
+  // Use cases - Employee
   sl.registerLazySingleton(() => GetEmployees(sl()));
   sl.registerLazySingleton(() => AddEmployee(sl()));
   sl.registerLazySingleton(() => UpdateEmployee(sl()));
@@ -47,17 +71,38 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetEmployeeStats(sl()));
   sl.registerLazySingleton(() => ImportEmployees(sl()));
 
-  // Repository
+  // Use cases - Auth
+  sl.registerLazySingleton(() => LoginUseCase(sl()));
+  sl.registerLazySingleton(() => RegisterUseCase(sl()));
+  sl.registerLazySingleton(() => LogoutUseCase(sl()));
+  sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
+
+  // Repository - Employee
   sl.registerLazySingleton<EmployeeRepository>(
     () => EmployeeRepositoryImpl(
       localDataSource: sl(),
     ),
   );
 
-  // Data sources
+  // Repository - Auth
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(
+      localDataSource: sl(),
+    ),
+  );
+
+  // Data sources - Employee
   sl.registerLazySingleton<EmployeeLocalDataSource>(
     () => EmployeeLocalDataSourceImpl(
       employeeBox: employeeBox,
+    ),
+  );
+
+  // Data sources - Auth
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(
+      userBox: userBox,
+      sessionBox: sessionBox,
     ),
   );
 }

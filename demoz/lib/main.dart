@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/injection/injection_container.dart' as di;
 import 'features/employee/presentation/bloc/employee_bloc.dart';
 import 'features/employee/presentation/bloc/employee_event.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/screens/onboarding_screen.dart';
 import 'features/auth/presentation/screens/signup_screen.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
@@ -20,8 +21,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<EmployeeBloc>()..add(GetEmployeesEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => di.sl<EmployeeBloc>()..add(GetEmployeesEvent()),
+        ),
+        BlocProvider(
+          create: (_) => di.sl<AuthBloc>(),
+        ),
+      ],
       child: MaterialApp(
         title: 'Demoz Payroll',
         debugShowCheckedModeBanner: false,
@@ -29,7 +37,12 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF3085FE)),
           useMaterial3: true,
         ),
-        home: const MainLayoutScreen(),
+        home: const OnboardingScreen(),
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/signup': (context) => const SignupScreen(),
+          '/home': (context) => const MainLayoutScreen(),
+        },
       ),
     );
   }
