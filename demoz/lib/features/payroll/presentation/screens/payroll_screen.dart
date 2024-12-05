@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:demoz/features/employee/presentation/screens/add_employee_screen.dart';
-import 'package:demoz/features/company/presentation/screens/company_profile_screen.dart';
+import 'package:file_picker/file_picker.dart';
 
 class PayrollScreen extends StatefulWidget {
   const PayrollScreen({super.key});
@@ -12,6 +12,25 @@ class PayrollScreen extends StatefulWidget {
 class _PayrollScreenState extends State<PayrollScreen> {
   final ScrollController _horizontalScrollController = ScrollController();
   int _selectedIndex = 1;  // Set initial index to 1 for middle button
+  String? _selectedFileName;
+
+  Future<void> _pickCSVFile() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (result != null) {
+        setState(() {
+          _selectedFileName = result.files.single.name;
+        });
+      }
+    } catch (e) {
+      // Handle any errors that occur during file picking
+      debugPrint('Error picking file: $e');
+    }
+  }
 
   @override
   void dispose() {
@@ -25,182 +44,135 @@ class _PayrollScreenState extends State<PayrollScreen> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Management',
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        actions: [
-          FilledButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddEmployeeScreen()),
-              );
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF30BEB6),
-              foregroundColor: Colors.white,
+        title: Row(
+          children: [
+            const Text(
+              'Management',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+              ),
             ),
-            icon: const Icon(Icons.add),
-            label: const Text('Add Employee'),
-          ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    FilledButton.icon(
-                      onPressed: () {},
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.grey[200],
-                        foregroundColor: Colors.black87,
-                      ),
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text('Upload CSV'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  controller: _horizontalScrollController,
-                  child: DataTable(
-                    headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
-                    columns: const [
-                      DataColumn(label: Text('Employee')),
-                      DataColumn(label: Text('Net Salary')),
-                      DataColumn(label: Text('Taxable\nEarnings')),
-                      DataColumn(label: Text('Income\nTax')),
-                      DataColumn(label: Text('Pension\nTax')),
-                      DataColumn(label: Text('Gross\nPay')),
-                      DataColumn(label: Text('Actions')),
-                    ],
-                    rows: [
-                      _buildDataRow('Abraham Welde', '15,000', '2000', '5000', '5000', '20,000'),
-                      _buildDataRow('Birant Alemu', '25,000', '3000', '7000', '7000', '30,000'),
-                      _buildDataRow('Birate Girum', '15,000', '2000', '5000', '5000', '20,000'),
-                      _buildDataRow('Alemu Molla', '15,000', '2000', '5000', '5000', '20,000'),
-                    ],
+            const Spacer(),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddEmployeeScreen(),
                   ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF16C098),
+                foregroundColor: Colors.white,
+              ),
+              icon: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 80), // Space for bottom button
+                child: const Icon(Icons.add, size: 16),
+              ),
+              label: const Text('Add Employee'),
+            ),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _pickCSVFile,
+                  icon: const Icon(Icons.upload_file),
+                  label: const Text('Upload CSV'),
+                ),
+                if (_selectedFileName != null) ...[
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.description, size: 16, color: Color(0xFF3085FE)),
+                        const SizedBox(width: 8),
+                        Text(
+                          _selectedFileName!,
+                          style: const TextStyle(color: Color(0xFF3085FE)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 12),
               ],
             ),
-          ),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 16,
-            child: FilledButton.icon(
-              onPressed: () {},
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF30BEB6),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              icon: const Icon(Icons.payments_outlined),
-              label: const Text(
-                'Bulk Pay',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: Implement PDF download
+                  },
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text('Download PDF'),
+                ),
+              ]
+            ),
+            const SizedBox(height: 16),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              controller: _horizontalScrollController,
+              child: DataTable(
+                headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
+                columns: const [
+                  DataColumn(label: Text('Employee')),
+                  DataColumn(label: Text('Net Salary')),
+                  DataColumn(label: Text('Taxable\nEarnings')),
+                  DataColumn(label: Text('Income\nTax')),
+                  DataColumn(label: Text('Pension\nTax')),
+                  DataColumn(label: Text('Gross\nPay')),
+                  DataColumn(label: Text('Actions')),
+                ],
+                rows: [
+                  _buildDataRow('Abraham Welde', '15,000', '2000', '5000', '5000', '20,000'),
+                  _buildDataRow('Birant Alemu', '25,000', '3000', '7000', '7000', '30,000'),
+                  _buildDataRow('Birate Girum', '15,000', '2000', '5000', '5000', '20,000'),
+                  _buildDataRow('Alemu Molla', '15,000', '2000', '5000', '5000', '20,000'),
+                ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3085FE),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  minimumSize: const Size(double.infinity, 0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Bulk Pay',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            selectedItemColor: const Color(0xFF3085FE),
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            onTap: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-              if (index == 0) {
-                Navigator.pop(context);
-              } else if (index == 1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PayrollScreen()),
-                );
-              } else if (index == 2) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CompanyProfileScreen()),
-                );
-              }
-            },
-            items: [
-              BottomNavigationBarItem(
-                icon: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 2,
-                      width: 30,
-                      color: _selectedIndex == 0 ? const Color(0xFF3085FE) : Colors.transparent,
-                    ),
-                    const SizedBox(height: 8),
-                    Image.asset(
-                      'assets/icons/home-2.png',
-                      height: 24,
-                      width: 24,
-                      color: _selectedIndex == 0 ? const Color(0xFF3085FE) : Colors.grey,
-                    ),
-                  ],
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 2,
-                      width: 30,
-                      color: _selectedIndex == 1 ? const Color(0xFF3085FE) : Colors.transparent,
-                    ),
-                    const SizedBox(height: 8),
-                    Image.asset(
-                      'assets/icons/note.png',
-                      height: 24,
-                      width: 24,
-                      color: _selectedIndex == 1 ? const Color(0xFF3085FE) : Colors.grey,
-                    ),
-                  ],
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 2,
-                      width: 30,
-                      color: _selectedIndex == 2 ? const Color(0xFF3085FE) : Colors.transparent,
-                    ),
-                    const SizedBox(height: 8),
-                    Image.asset(
-                      'assets/icons/profile.png',
-                      height: 24,
-                      width: 24,
-                      color: _selectedIndex == 2 ? const Color(0xFF3085FE) : Colors.grey,
-                    ),
-                  ],
-                ),
-                label: '',
-              ),
-            ],
-          ),
     );
   }
 
@@ -227,10 +199,11 @@ class _PayrollScreenState extends State<PayrollScreen> {
         )),
         DataCell(Text(grossPay)), // No background color
         DataCell(
-          FilledButton(
+          ElevatedButton(
             onPressed: () {},
-            style: FilledButton.styleFrom(
+            style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF30BEB6),
+              foregroundColor: Colors.white,
               minimumSize: const Size(60, 36),
             ),
             child: const Text('Pay'),
@@ -239,5 +212,4 @@ class _PayrollScreenState extends State<PayrollScreen> {
       ],
     );
   }
-
 }

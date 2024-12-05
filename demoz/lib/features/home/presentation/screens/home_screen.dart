@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedIndex = 0;
+  int _selectedTab = 0;
 
   @override
   void initState() {
@@ -31,7 +32,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       color: color.withOpacity(0.1),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: color,
+          width: 1,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -42,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               title,
               style: const TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
               softWrap: true,
               overflow: TextOverflow.visible,
@@ -52,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               value,
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 color: color,
               ),
             ),
@@ -74,14 +79,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               'Date',
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Aug 1 - Aug 30'),
+                const Text('Aug 1, 2024 - Aug 30, 2024', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
@@ -132,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
-                  width: 80,
+                  width: 100,
                   child: const Text(
                     'August Tax\non due',
                     style: TextStyle(
@@ -165,11 +169,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           const Text(
             'Employee Composition',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -190,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               Expanded(
                 flex: 2,
                 child: SizedBox(
-                  height: 120,
+                  height: 110,
                   child: PieChart(
                     PieChartData(
                       sections: [
@@ -234,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             child: Text(
               '$totalEmployees employees total',
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: Colors.grey,
               ),
             ),
@@ -258,16 +262,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           const Text(
             'Tax Summary',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             '$amount ETB',
             style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
           ),
           const SizedBox(height: 8),
@@ -305,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      // backgroundColor: Colors.grey[100],
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
@@ -321,200 +324,158 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            'Number of Employees',
-                            '125',
-                            const Color(0xFF3085FE),
-                            0,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildStatCard(
-                            'Income Tax paid',
-                            '2000',
-                            const Color(0xFFA3D139),
-                            1,
-                          ),
-                        ),
-                      ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      'Number of Employees',
+                      '20',
+                      const Color(0xFF3085FE),
+                      0,
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            'Pension Tax paid',
-                            '4',
-                            const Color(0xFF30BEB6),
-                            2,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildStatCard(
-                            'Employees Performance',
-                            '95 %',
-                            const Color(0xFFFF7F74),
-                            3,
-                          ),
-                        ),
-                      ],
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Income Tax paid',
+                      '2000',
+                      const Color(0xFFA3D139),
+                      1,
                     ),
-                    const SizedBox(height: 24),
-                    TabBar(
-                      controller: _tabController,
-                      labelColor: const Color(0xFF3085FE),
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: const Color(0xFF3085FE),
-                      tabs: const [
-                        Tab(text: 'Upcoming'),
-                        Tab(text: 'Past'),
-                      ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      'Pension Tax paid',
+                      '4',
+                      const Color(0xFF30BEB6),
+                      2,
                     ),
-                    SizedBox(
-                      height: 200,
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildUpcomingPaymentTab(),
-                          _buildPastPaymentTab(),
-                        ],
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Employees Performance',
+                      '95 %',
+                      const Color(0xFFFF7F74),
+                      3,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedTab = 0;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _selectedTab == 0
+                            ? const Color(0xFF579AFC)
+                            : Colors.grey.shade100,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Upcoming',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: _selectedTab == 0
+                              ? Colors.white
+                              : Colors.grey.shade700,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: SizedBox(
-                            height: 250,
-                            child: Card(
-                              color: Colors.white,
-                              child: _buildEmployeeCompositionCard(),
-                            ),
-                          ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedTab = 1;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _selectedTab == 1
+                            ? const Color(0xFF579AFC)
+                            : Colors.grey.shade100,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 2,
-                          child: SizedBox(
-                            height: 250,
-                            child: Card(
-                              color: Colors.white,
-                              child: _buildTaxSummaryCard(),
-                            ),
-                          ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Past',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: _selectedTab == 1
+                              ? Colors.white
+                              : Colors.grey.shade700,
                         ),
-                      ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-          ),
-          BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            selectedItemColor: const Color(0xFF3085FE),
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            onTap: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-              if (index == 1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PayrollScreen()),
-                );
-              } else if (index == 2) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CompanyProfileScreen()),
-                );
-              }
-            },
-            items: [
-              BottomNavigationBarItem(
-                icon: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 2,
-                      width: 30,
-                      color: _selectedIndex == 0 ? const Color(0xFF3085FE) : Colors.transparent,
-                    ),
-                    const SizedBox(height: 8),
-                    Image.asset(
-                      'assets/icons/home-2.png',
-                      height: 24,
-                      width: 24,
-                      color: _selectedIndex == 0 ? const Color(0xFF3085FE) : Colors.grey,
-                    ),
-                  ],
-                ),
-                label: '',
+              SizedBox(
+                height: 200,
+                child: _selectedTab == 0
+                    ? _buildUpcomingPaymentTab()
+                    : _buildPastPaymentTab(),
               ),
-              BottomNavigationBarItem(
-                icon: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 2,
-                      width: 30,
-                      color: _selectedIndex == 1 ? const Color(0xFF3085FE) : Colors.transparent,
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: SizedBox(
+                      height: 250,
+                      child: Card(
+                        color: Colors.white,
+                        child: _buildEmployeeCompositionCard(),
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Image.asset(
-                      'assets/icons/note.png',
-                      height: 24,
-                      width: 24,
-                      color: _selectedIndex == 1 ? const Color(0xFF3085FE) : Colors.grey,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 2,
+                    child: SizedBox(
+                      height: 250,
+                      child: Card(
+                        color: Colors.white,
+                        child: _buildTaxSummaryCard(),
+                      ),
                     ),
-                  ],
-                ),
-                label: '',
+                  ),
+                ],
               ),
-              BottomNavigationBarItem(
-                icon: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 2,
-                      width: 30,
-                      color: _selectedIndex == 2 ? const Color(0xFF3085FE) : Colors.transparent,
-                    ),
-                    const SizedBox(height: 8),
-                    Image.asset(
-                      'assets/icons/profile.png',
-                      height: 24,
-                      width: 24,
-                      color: _selectedIndex == 2 ? const Color(0xFF3085FE) : Colors.grey,
-                    ),
-                  ],
-                ),
-                label: '',
-              ),
+              const SizedBox(height: 16),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

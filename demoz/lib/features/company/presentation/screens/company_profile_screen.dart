@@ -66,12 +66,8 @@ class CompanyProfileScreen extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundColor: Colors.grey[200],
                   child: Image.asset(
                     'assets/icons/profile.png',
-                    width: 60,
-                    height: 60,
-                    color: const Color(0xFF3085FE),
                   ),
                 ),
                 Positioned(
@@ -80,7 +76,7 @@ class CompanyProfileScreen extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF3085FE),
+                      color: const Color(0xFFEE8924),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Icon(
@@ -104,7 +100,7 @@ class CompanyProfileScreen extends StatelessWidget {
               'HR Manager',
               style: TextStyle(
                 fontSize: 16,
-                color: Color(0xFF3085FE),
+                color: Color(0xFFABABAB),
               ),
             ),
             const SizedBox(height: 32),
@@ -143,81 +139,6 @@ class CompanyProfileScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
-        selectedItemColor: const Color(0xFF3085FE),
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pop(context);
-          } else if (index == 1) {
-            Navigator.pop(context);
-          }
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 2,
-                  width: 30,
-                  color: Colors.transparent,
-                ),
-                const SizedBox(height: 8),
-                Image.asset(
-                  'assets/icons/home-2.png',
-                  height: 24,
-                  width: 24,
-                  color: Colors.grey,
-                ),
-              ],
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 2,
-                  width: 30,
-                  color: Colors.transparent,
-                ),
-                const SizedBox(height: 8),
-                Image.asset(
-                  'assets/icons/note.png',
-                  height: 24,
-                  width: 24,
-                  color: Colors.grey,
-                ),
-              ],
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 2,
-                  width: 30,
-                  color: const Color(0xFF3085FE),
-                ),
-                const SizedBox(height: 8),
-                Image.asset(
-                  'assets/icons/profile.png',
-                  height: 24,
-                  width: 24,
-                  color: const Color(0xFF3085FE),
-                ),
-              ],
-            ),
-            label: '',
-          ),
-        ],
       ),
     );
   }
