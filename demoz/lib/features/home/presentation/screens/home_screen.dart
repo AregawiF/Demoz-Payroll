@@ -495,7 +495,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     );
   }
-@override
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<EmployeeBloc, EmployeeState>(
       builder: (context, state) {
@@ -507,8 +508,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           return Center(child: Text(state.message));
         }
 
-        if (state is EmployeeStatsLoaded) {
-          return _buildHomeContent(context, state.stats);
+        if (state is EmployeesLoaded && state.stats != null) {
+          return _buildHomeContent(context, state.stats!);
         }
 
         return const Center(child: CircularProgressIndicator());
@@ -516,4 +517,3 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 }
-

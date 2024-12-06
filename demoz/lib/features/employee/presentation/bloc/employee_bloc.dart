@@ -31,6 +31,20 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     on<DeleteEmployeeEvent>(_onDeleteEmployee);
     on<GetEmployeeStatsEvent>(_onGetEmployeeStats);
     on<ImportEmployeesEvent>(_onImportEmployees);
+
+    // Trigger initial load
+    add(GetEmployeeStatsEvent());
+
+    // Log every event
+    on<EmployeeEvent>((event, emit) {
+      print('Event: ${event.runtimeType}');
+    });
+  }
+
+  @override
+  void onTransition(Transition<EmployeeEvent, EmployeeState> transition) {
+    print('Transition: ${transition.currentState} -> ${transition.nextState}');
+    super.onTransition(transition);
   }
 
   Future<void> _onGetEmployees(
@@ -56,6 +70,8 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
       (_) {
         emit(const EmployeeOperationSuccess('Employee added successfully'));
         add(GetEmployeesEvent());
+        add(GetEmployeeStatsEvent());
+
       },
     );
   }
@@ -94,11 +110,24 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     GetEmployeeStatsEvent event,
     Emitter<EmployeeState> emit,
   ) async {
+    // Prevent re-entering if already loading
+    if (state is EmployeesLoaded) return;
+
     emit(EmployeeLoading());
-    final result = await getEmployeeStats(NoParams());
-    result.fold(
+    
+    // First, get employee stats
+    final statsResult = await getEmployeeStats(NoParams());
+    
+    // Then, get employees
+    final employeesResult = await getEmployees(NoParams());
+    
+    // Combine results
+    return statsResult.fold(
       (failure) => emit(EmployeeError(failure.message)),
-      (stats) => emit(EmployeeStatsLoaded(stats)),
+      (stats) => employeesResult.fold(
+        (failure) => emit(EmployeeError(failure.message)),
+        (employees) => emit(EmployeesLoaded(employees, stats: stats))
+      )
     );
   }
 

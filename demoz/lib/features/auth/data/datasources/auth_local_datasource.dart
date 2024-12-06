@@ -77,7 +77,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       numberOfEmployees: numberOfEmployees,
       companyBank: companyBank,
       bankAccountNumber: bankAccountNumber,
-      role: 'admin', // Default role for now
+      role: 'HR Manager', 
       createdAt: DateTime.now(),
       isActive: true,
       password: _hashPassword(password),

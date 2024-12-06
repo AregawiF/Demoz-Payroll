@@ -57,12 +57,23 @@ class _LoginScreenState extends State<LoginScreen> {
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthError) {
-              if (state.message == 'No user found') {
+              if (state.message.contains('Invalid email or password')) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('The email or password you entered is incorrect. Please try again.'),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 4),
+                  ),
+                );
+              } else if (state.message == 'No user found') {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('No user found. Please register first.'),
+                    content: const Text('Account not found. Please create an account first.'),
+                    backgroundColor: Colors.orange,
+                    duration: const Duration(seconds: 4),
                     action: SnackBarAction(
-                      label: 'Register',
+                      label: 'Sign Up',
+                      textColor: Colors.white,
                       onPressed: () {
                         Navigator.pushNamed(context, '/register');
                       },
@@ -71,7 +82,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
+                  SnackBar(
+                    content: Text('Login failed: ${state.message}'),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 4),
+                  ),
                 );
               }
             } else if (state is Authenticated) {

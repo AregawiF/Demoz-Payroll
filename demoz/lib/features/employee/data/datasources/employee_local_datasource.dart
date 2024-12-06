@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import '../../../../core/error/failures.dart';
 import '../models/employee_model.dart';
+import 'package:uuid/uuid.dart'; 
 
 abstract class EmployeeLocalDataSource {
   Future<List<EmployeeModel>> getEmployees();
@@ -68,9 +69,11 @@ class EmployeeLocalDataSourceImpl implements EmployeeLocalDataSource {
   }
 
   Future<void> _addDummyData() async {
+    var uuid = const Uuid();
+
     final dummyEmployees = [
       EmployeeModel(
-        id: '1',
+        id: uuid.v4(), 
         name: 'John Doe',
         email: 'john@example.com',
         salary: 5000,
@@ -83,9 +86,9 @@ class EmployeeLocalDataSourceImpl implements EmployeeLocalDataSource {
         taxableEarnings: 4500, 
       ),
       EmployeeModel(
-        id: '2',
-        name: 'Jane Smith',
-        email: 'jane@example.com',
+        id: uuid.v4(), 
+        name: 'Almaz Smith',
+        email: 'almaz@example.com',
         salary: 6000,
         incomeTax: 600,
         pensionTax: 300,

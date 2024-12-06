@@ -86,7 +86,6 @@ class _PayrollScreenState extends State<PayrollScreen> {
   @override
   Widget _buildPayrollContent(BuildContext context, List<Employee> employees) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Row(
@@ -181,7 +180,9 @@ class _PayrollScreenState extends State<PayrollScreen> {
               scrollDirection: Axis.horizontal,
               controller: _horizontalScrollController,
               child: DataTable(
-                headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
+                // headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
+                headingRowColor: MaterialStateColor.resolveWith(
+                      (states) => Colors.blue.shade50),
                 columns: const [
                   DataColumn(label: Text('Employee')),
                   DataColumn(label: Text('Net Salary')),
@@ -191,12 +192,6 @@ class _PayrollScreenState extends State<PayrollScreen> {
                   DataColumn(label: Text('Gross\nPay')),
                   DataColumn(label: Text('Actions')),
                 ],
-                // rows: [
-                //   _buildDataRow('Abraham Welde', '15,000', '2000', '5000', '5000', '20,000'),
-                //   _buildDataRow('Birant Alemu', '25,000', '3000', '7000', '7000', '30,000'),
-                //   _buildDataRow('Birate Girum', '15,000', '2000', '5000', '5000', '20,000'),
-                //   _buildDataRow('Alemu Molla', '15,000', '2000', '5000', '5000', '20,000'),
-                // ],
                 rows: employees.map((employee) {
                   return _buildDataRow(
                     employee.name,
@@ -235,40 +230,84 @@ class _PayrollScreenState extends State<PayrollScreen> {
     );
   }
 
+  // DataRow _buildDataRow(String name, String netSalary, String taxableEarnings, 
+  //     String incomeTax, String pensionTax, String grossPay) {
+  //   return DataRow(
+  //     cells: [
+  //       DataCell(Container(
+  //         color: const Color(0xFFE5F6FF),
+  //         padding: const EdgeInsets.symmetric(horizontal: 8),
+  //         child: Text(name),
+  //       )),
+  //       DataCell(Container(
+  //         color: const Color(0xFFE5F6FF).withOpacity(0.3),
+  //         child: Text(netSalary),
+  //       )),
+  //       DataCell(Container(
+  //         color: const Color(0xFFE5F6FF),
+  //         padding: const EdgeInsets.symmetric(horizontal: 8),
+  //         child: Text(taxableEarnings),
+  //       )),
+  //       DataCell(Container(
+  //         color: const Color(0xFFE5F6FF).withOpacity(0.3),
+  //         child: Text(incomeTax),
+  //       )),
+  //       DataCell(Container(
+  //         color: const Color(0xFFE5F6FF),
+  //         padding: const EdgeInsets.symmetric(horizontal: 8),
+  //         child: Text(pensionTax),
+  //       )),
+  //       DataCell(Container(
+  //         color: const Color(0xFFE5F6FF).withOpacity(0.3),
+  //         child: Text(grossPay),
+  //       )),
+  //       DataCell(
+  //         ElevatedButton(
+  //           onPressed: () {},
+  //           style: ElevatedButton.styleFrom(
+  //             backgroundColor: const Color(0xFF30BEB6),
+  //             foregroundColor: Colors.white,
+  //             minimumSize: const Size(60, 36),
+  //           ),
+  //           child: const Text('Pay'),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
   DataRow _buildDataRow(String name, String netSalary, String taxableEarnings, 
       String incomeTax, String pensionTax, String grossPay) {
-    return DataRow(
-      cells: [
-        DataCell(Container(
-          color: const Color(0xFFE5F6FF),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(name),
-        )),
-        DataCell(Text(netSalary)), // No background color
-        DataCell(Container(
-          color: const Color(0xFFE5F6FF),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(taxableEarnings),
-        )),
-        DataCell(Text(incomeTax)), // No background color
-        DataCell(Container(
-          color: const Color(0xFFE5F6FF),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(pensionTax),
-        )),
-        DataCell(Text(grossPay)), // No background color
+    final cells = <DataCell>[];
+    final data = [name, netSalary, taxableEarnings, incomeTax, pensionTax, grossPay, 'Pay'];
+
+    for (int i = 0; i < data.length; i++) {
+      final cellColor = i % 2 == 0 ? const Color(0xFFE5F6FF) : const Color(0xFFE5F6FF).withOpacity(0.3);
+      final cellContent = i == data.length - 1
+          ? ElevatedButton( 
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF30BEB6),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(60, 36),
+              ),
+              child: const Text('Pay'),
+            )
+          : Text(data[i]);
+
+      cells.add(
         DataCell(
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF30BEB6),
-              foregroundColor: Colors.white,
-              minimumSize: const Size(60, 36),
-            ),
-            child: const Text('Pay'),
+          Container(
+            color: cellColor,
+            padding: const EdgeInsets.symmetric(horizontal: 8), // Consistent padding
+            child: cellContent,
           ),
         ),
-      ],
-    );
+      );
+    }
+    return DataRow(cells: cells);
   }
+
+
+
 }

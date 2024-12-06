@@ -8,7 +8,7 @@ import 'features/auth/presentation/screens/onboarding_screen.dart';
 import 'features/auth/presentation/screens/signup_screen.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/home/presentation/screens/home_screen.dart';
-import 'main/presentation/screens/main_layout_screen.dart';
+import 'features/main/presentation/screens/main_layout_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,10 +24,18 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => di.sl<EmployeeBloc>()..add(GetEmployeesEvent()),
+          create: (context) {
+            final bloc = di.sl<EmployeeBloc>();
+            bloc.add(GetEmployeeStatsEvent());
+            return bloc;
+          },
         ),
         BlocProvider(
-          create: (_) => di.sl<AuthBloc>(),
+          create: (context) {
+            final bloc = di.sl<AuthBloc>();
+            bloc.add(CheckAuthStatus());
+            return bloc;
+          },
         ),
       ],
       child: MaterialApp(
@@ -37,7 +45,26 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF3085FE)),
           useMaterial3: true,
         ),
-        home: const OnboardingScreen(),
+        home: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state is AuthLoading) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            
+            if (state is Authenticated) {
+              return const MainLayoutScreen();
+            }
+            
+            if (state is AuthError) {
+              return const OnboardingScreen();
+            }
+            return const OnboardingScreen();
+          },
+        ),
         routes: {
           '/login': (context) => const LoginScreen(),
           '/signup': (context) => const SignupScreen(),

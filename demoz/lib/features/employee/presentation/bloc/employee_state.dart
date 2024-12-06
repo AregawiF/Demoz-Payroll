@@ -14,11 +14,12 @@ class EmployeeLoading extends EmployeeState {}
 
 class EmployeesLoaded extends EmployeeState {
   final List<Employee> employees;
+  final Map<String, dynamic>? stats;
 
-  const EmployeesLoaded(this.employees);
+  const EmployeesLoaded(this.employees, {this.stats});
 
   @override
-  List<Object> get props => [employees];
+  List<Object> get props => [employees, if (stats != null) stats!];
 }
 
 class EmployeeOperationSuccess extends EmployeeState {
